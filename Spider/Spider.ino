@@ -4,7 +4,7 @@
 // Create two PCA9685 objects with different I2C addresses
 Adafruit_PWMServoDriver pca1 = Adafruit_PWMServoDriver(0x40);  // Default address
 Adafruit_PWMServoDriver pca2 = Adafruit_PWMServoDriver(0x60);  // Alternate address
-
+//hello
 // Servo configuration
 #define SERVOMIN  100  // Minimum pulse length count (out of 4096)
 #define SERVOMAX  500  // Maximum pulse length count (out of 4096)
