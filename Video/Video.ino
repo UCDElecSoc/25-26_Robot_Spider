@@ -14,7 +14,7 @@
 #include "camera_pins.h"
 
 const char* ssid     = "Kelvin iPhone";   //input your wifi name
-const char* password = "1231Lols";   //input your wifi passwords
+const char* password = "1231qweq";   //input your wifi passwords
 
 void cameraInit(void);
 void startCameraServer();
@@ -70,12 +70,12 @@ void cameraInit(void){
   config.pin_sccb_scl = SIOC_GPIO_NUM;
   config.pin_pwdn = PWDN_GPIO_NUM;
   config.pin_reset = RESET_GPIO_NUM;
-  config.xclk_freq_hz = 10000000;
-  config.frame_size = FRAMESIZE_VGA;
+  config.xclk_freq_hz = 20000000;
+  config.frame_size = FRAMESIZE_QVGA;
   config.pixel_format = PIXFORMAT_JPEG; // for streaming
   config.grab_mode = CAMERA_GRAB_WHEN_EMPTY;
   config.fb_location = CAMERA_FB_IN_PSRAM;
-  config.jpeg_quality = 12;
+  config.jpeg_quality = 30;
   config.fb_count = 1;
   
   // if PSRAM IC present, init with UXGA resolution and higher JPEG quality
