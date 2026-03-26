@@ -5,6 +5,7 @@ Sprider Bot is an open-source, 3D-printed hexapod robot. Built on the ESP32 plat
 🎥 [Pics](https://github.com/UCDElecSoc/25-26_Robot_Spider/tree/main/Media) | 📁 [Download STL Files](https://github.com/UCDElecSoc/25-26_Robot_Spider/tree/main/Spider%20STLs) | 📖 [Read code](https://github.com/UCDElecSoc/25-26_Robot_Spider/tree/main/Spider_Robot)
 
 🚀 Key Features
+
 24 Servos: 3 joints per leg (Coxa, Femur, Tibia) for fluid, spider-like motion.
 
 A camera: to break several international privacy laws
@@ -12,6 +13,7 @@ A camera: to break several international privacy laws
 Spider like motion: to terrorise arachnophobes
 
 🛠️ Hardware Requirements
+
 Component  	        Quantity	    Description
 Microcontroller   	1	            ESP32 S3 with Camera
 Servo Motors	      24	          MG90S (Metal Gear)
