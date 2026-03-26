@@ -1,4 +1,5 @@
 🕷️ Spider Bot: "LOOK MA, IM JUST LIKE SPIDERMAN!"
+
 Sprider Bot is an open-source, 3D-printed hexapod robot. Built on the ESP32 platform, it features 24 servos and supports remote control via Bluetooth/Radio with a built in camera.
 
 🎥 [Pics](https://github.com/UCDElecSoc/25-26_Robot_Spider/tree/main/Media) | 📁 [Download STL Files](https://github.com/UCDElecSoc/25-26_Robot_Spider/tree/main/Spider%20STLs) | 📖 [Read code](https://github.com/UCDElecSoc/25-26_Robot_Spider/tree/main/Spider_Robot)
