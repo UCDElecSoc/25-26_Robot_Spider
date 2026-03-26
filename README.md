@@ -14,13 +14,14 @@ Spider like motion: to terrorise arachnophobes
 
 🛠️ Hardware Requirements
 
-Component  	        Quantity	    Description
-Microcontroller   	1	            ESP32 S3 with Camera
-Servo Motors	      24	          MG90S (Metal Gear)
-Servo Driver	      2	            PCA9685 16-Channel PWM Driver
-Power Supply	      4	            18650 Cell Battery
-Power Regulator     1             3A 5V BEC
-Body	              1	            3D Printed Chassis (PETG)
+| Component | Quantity | Description |
+| :--- | :--- | :--- |
+| **Microcontroller** | 1 | ESP32 S3 with Camera |
+| **Servo Motors** | 24 | MG90S (Metal Gear) |
+| **Servo Driver** | 2 | PCA9685 16-Channel PWM Driver |
+| **Power Supply** | 4 | 18650 Cell Battery |
+| **Power Regulator** | 1 | 3A 5V BEC |
+| **Body** | 1 | 3D Printed Chassis (PETG) |
 
 Open your browser to http://172.20.10.11/ to access the camera, change the password for your own hotspot.
 Connect a BTLE or BLE controller to the ESP32 to control the robot
