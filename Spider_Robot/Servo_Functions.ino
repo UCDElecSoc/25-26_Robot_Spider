@@ -28,25 +28,6 @@ void setupServos(){
   Ready();
 }
 
-void Ready() {
-  // --- ROTATION (Group 1 Split) ---
-  int rotationPort[] = {1, 5, 9, 13};
-  int rotationStarboard[] = {20, 23, 28, 32};
-  for (int pin : rotationPort)      setServoAngle(pin, 90);
-  for (int pin : rotationStarboard) setServoAngle(pin, 90);
-
-  // --- UP / DOWN (Groups 3 & 4) ---
-  int upDownPort[] = {2, 6, 10, 14};      // Was Group 2 (135°)
-  int upDownStarboard[] = {19, 22, 27, 31}; // Was Group 3 (45°)
-  for (int pin : upDownPort)      setServoAngle(pin, 135);
-  for (int pin : upDownStarboard) setServoAngle(pin, 45);
-
-  // --- IN / OUT (Groups 5 & 6) ---
-  int inOutPort[] = {3, 7, 11, 15};       // Was Group 4 (70°)
-  int inOutStarboard[] = {18, 21, 26, 30};  // Was Group 5 (110°)
-  for (int pin : inOutPort)      setServoAngle(pin, 70);
-  for (int pin : inOutStarboard) setServoAngle(pin, 110);
-}
 
 // Function to set all servos on both boards to middle position (90 degrees) //
 void calibrate() {
