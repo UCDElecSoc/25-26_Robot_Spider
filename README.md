@@ -12,6 +12,8 @@ A camera: to break several international privacy laws
 
 Spider like motion: to terrorise arachnophobes
 
+![Prototype 1 Image](https://github.com/UCDElecSoc/25-26_Robot_Spider/blob/main/Media/Prototype%201%20-%20Servos%20and%20Legs%20Install.jpeg)
+
 🛠️ Hardware Requirements
 
 | Component | Quantity | Description |
