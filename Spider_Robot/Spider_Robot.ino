@@ -39,17 +39,19 @@ LegConfig legs[8] = {  // Leg Pins Config (1 = Port, -1 = Starboard)
 void setup() {
   Serial.begin(115200);
   delay(1000);
- 
   setupServos();
+
 //  setupCamera();
   delay(1000);
 }
 
 void loop() {
+  // Print the current state to the computer
+  Serial.print("Executing State: ");
+  Serial.println(state + 1); // +1 just to see it as steps 1-8
   walk(1);
-  // put your main code here, to run repeatedly:
-  delay(500);
-  
-}
+  // Slowing it down slightly can also help reduce power spikes
+  delay(500); 
 
+}
 

@@ -24,7 +24,7 @@ void setupServos(){
   // Set all servos to 90-degree (middle) positions
 
   Serial.setDebugOutput(true);
-  //calibrate();
+//      calibrate();
   Ready();
 }
 
