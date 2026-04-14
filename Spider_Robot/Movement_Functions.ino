@@ -1,42 +1,62 @@
 void Ready() {
   state = 0; // Force state to 0
     for (int i = 0; i < 8; i++) {
-        setState(i, state);
+        setState(i, state, 1);
     }
 }
 
-void walk(int direction) {
-    state += direction;
+void walk(int command) {
+    // The animation timeline ALWAYS moves forward to keep the legs in sync
+    state += 1; 
     
-    // Wrap around logic for the 8-step cycle
-    // If it goes past 8, loop back to 1
-    if (state > 8) {state = 1;}
-    // If you ever walk backward and go below 1, loop back to 8
-    if (state < 1) {state = 8;}
+    // Wrap around for the 8-step cycle
+    if (state > 8) {
+        state = 1; 
+    }
+
+    // Pass both the state AND the command down to the legs
     for (int i = 0; i < 8; i++) {
-        setState(i, state);
+        setState(i, state, command); 
     }
 }
 
-void setState(int legIndex, int st) {
+void setState(int legIndex, int st, int command) {
     LegConfig leg = legs[legIndex]; 
     int parity = legIndex % 2; 
 
-    // --- 1. Pre-calculate the targeted 3D positions ---
+    // --- NEW: Determine the leg's thrust direction based on your command ---
+    int legDirection = 1; // 1 = Push Forward, -1 = Push Backward
+
+    if (command == 1) {
+        legDirection = 1;  // All legs walk forward
+    } 
+    else if (command == -1) {
+        legDirection = -1; // All legs walk backward
+    } 
+    else if (command == 2) {
+        // TURN RIGHT: Port side walks forward (1), Starboard side walks backward (-1)
+        legDirection = leg.portStarbound; 
+    } 
+    else if (command == -2) {
+        // TURN LEFT: Port side walks backward (-1), Starboard side walks forward (1)
+        legDirection = -leg.portStarbound; 
+    }
+
+    // --- Pre-calculate the targeted 3D positions ---
     
-    // Up/Down & In/Out
-    int downUpDown = 90 + (45 * leg.portStarbound); // Planted firmly on ground
+    int downUpDown = 90 + (45 * leg.portStarbound); 
     int downInOut  = 90 - (20 * leg.portStarbound); 
-    int upUpDown   = 90 + (70 * leg.portStarbound); // Lifted high in the air
+    int upUpDown   = 90 + (70 * leg.portStarbound); 
     int upInOut    = 90 - (45 * leg.portStarbound);
 
-    // Rotation
+    // --- NEW: Multiply the rotation by legDirection so it flips when steering! ---
     int rotCenter   = 90;
-    int rotForward  = 90 + (25 * leg.portStarbound); // Swung forward 45 deg
-    int rotBackward = 90 - (25 * leg.portStarbound); // Pushed backward 45 deg
+    int rotForward  = 90 - (25 * leg.portStarbound * legDirection); 
+    int rotBackward = 90 + (25 * leg.portStarbound * legDirection); 
 
-    // Variables to hold the final decision for this specific step
     int currentUpDown, currentInOut, currentRot;
+
+    // ... (Keep your Group A and Group B switch statements exactly the same as before!) ...
 
     // --- 2. The 8-Step Walking Gait ---
 
@@ -90,7 +110,17 @@ void setState(int legIndex, int st) {
         }
     }
 
-    // --- 3. Command the Servos ---
+// --- 3. Apply Custom Hardware Offsets ---
+    
+    // Offset Leg 4 (Index 4) down by 2 degrees
+    if (legIndex == 4) {
+        // Because Leg 4 is on the Starboard side, its "down" position is 45 
+        // and its "up" position is 20. To push it further down toward the floor, 
+        // we add to the angle. (If it moves the wrong way, just change this to -2).
+        currentUpDown -= 2; 
+    }
+
+    // --- 4. Command the Servos ---
     setServoAngle(leg.rotationPin, currentRot);
     setServoAngle(leg.upDownPin, currentUpDown);
     setServoAngle(leg.inOutPin, currentInOut);

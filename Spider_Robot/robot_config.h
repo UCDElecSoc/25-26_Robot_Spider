@@ -52,7 +52,7 @@ void setServoAngle(Adafruit_PWMServoDriver &pca, int servoNum, int angle);
 void setupServos(void);
 void setupCamera(void);
 void Ready(void);
-void setState(int legIndex, int st);
+void setState(int legIndex, int st, int command);
 void walk(int direction);
 
 #endif // ROBOT_CONFIG_H
