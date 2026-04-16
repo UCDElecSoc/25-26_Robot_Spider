@@ -18,6 +18,9 @@
 Adafruit_PWMServoDriver pca1 = Adafruit_PWMServoDriver(0x40);
 Adafruit_PWMServoDriver pca2 = Adafruit_PWMServoDriver(0x60);
 
+ControllerPtr myControllers[BP32_MAX_GAMEPADS];
+
+
 const char* ssid     = "Kelvin iPhone";   
 const char* password = "1231qweq";   
 
@@ -39,6 +42,8 @@ LegConfig legs[8] = {  // Leg Pins Config (1 = Port, -1 = Starboard)
 void setup() {
   Serial.begin(115200);
   delay(1000);
+  BP32.setup(&onConnectedController, &onDisconnectedController);
+  BP32.forgetBluetoothKeys(); // Optional: clears previously paired devices
   setupServos();
 
 //  setupCamera();
@@ -47,11 +52,19 @@ void setup() {
 
 void loop() {
   // Print the current state to the computer
+  BP32.update();
+
   Serial.print("Executing State: ");
   Serial.println(state + 1); // +1 just to see it as steps 1-8
-  walk(1);
+  
+  for (int i = 0; i < BP32_MAX_GAMEPADS; i++) {
+    if (myControllers[i] && myControllers[i]->isConnected()) {
+        processGamepad(myControllers[i]);
+    }
+  }
+  
   // Slowing it down slightly can also help reduce power spikes
-  delay(500); 
+//  delay(100); 
 
 }
 

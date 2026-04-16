@@ -22,105 +22,80 @@ void walk(int command) {
 
 void setState(int legIndex, int st, int command) {
     LegConfig leg = legs[legIndex]; 
-    int parity = legIndex % 2; 
 
-    // --- NEW: Determine the leg's thrust direction based on your command ---
-    int legDirection = 1; // 1 = Push Forward, -1 = Push Backward
+    // --- Determine Thrust Direction ---
+    int legDirection = 1; 
+    if (command == 1) legDirection = 1;
+    else if (command == -1) legDirection = -1;
+    else if (command == 2) legDirection = leg.portStarbound;
+    else if (command == -2) legDirection = -leg.portStarbound;
 
-    if (command == 1) {
-        legDirection = 1;  // All legs walk forward
-    } 
-    else if (command == -1) {
-        legDirection = -1; // All legs walk backward
-    } 
-    else if (command == 2) {
-        // TURN RIGHT: Port side walks forward (1), Starboard side walks backward (-1)
-        legDirection = leg.portStarbound; 
-    } 
-    else if (command == -2) {
-        // TURN LEFT: Port side walks backward (-1), Starboard side walks forward (1)
-        legDirection = -leg.portStarbound; 
-    }
-
-    // --- Pre-calculate the targeted 3D positions ---
-    
+    // --- Pre-calculate positions ---
     int downUpDown = 90 + (45 * leg.portStarbound); 
-    int downInOut  = 90 - (20 * leg.portStarbound); 
-    int upUpDown   = 90 + (70 * leg.portStarbound); 
+    int downInOut  = 90 - (30 * leg.portStarbound); 
+    int upUpDown   = 90 + (80 * leg.portStarbound); 
     int upInOut    = 90 - (45 * leg.portStarbound);
 
-    // --- NEW: Multiply the rotation by legDirection so it flips when steering! ---
     int rotCenter   = 90;
     int rotForward  = 90 - (25 * leg.portStarbound * legDirection); 
     int rotBackward = 90 + (25 * leg.portStarbound * legDirection); 
 
     int currentUpDown, currentInOut, currentRot;
 
-    // ... (Keep your Group A and Group B switch statements exactly the same as before!) ...
+    // --- Apply the Wave Gait ---
+    if (st == 0) {
+        // IDLE / BOOTUP
+        currentUpDown = downUpDown; 
+        currentInOut = downInOut; 
+        currentRot = rotCenter;
+    } else {
+        // 1. Assign each leg to one of 4 pairs. 
+        // We pair opposite sides/ends so the robot doesn't tip over when lifting!
+        int groupOffset = 0;
+        if (legIndex == 0 || legIndex == 5) groupOffset = 0;      // Pair 0 lifts on steps 1 & 2
+        else if (legIndex == 2 || legIndex == 7) groupOffset = 2; // Pair 1 lifts on steps 3 & 4
+        else if (legIndex == 4 || legIndex == 1) groupOffset = 4; // Pair 2 lifts on steps 5 & 6
+        else if (legIndex == 6 || legIndex == 3) groupOffset = 6; // Pair 3 lifts on steps 7 & 8
 
-    // --- 2. The 8-Step Walking Gait ---
+        // 2. Calculate this specific leg's current animation frame (0 to 7)
+        int localStep = (st - 1 - groupOffset + 8) % 8;
 
-    if (parity == 0) { 
-        // ==========================================
-        // GROUP A: EVEN LEGS (0, 2, 4, 6)
-        // ==========================================
-        switch (st) {
-            case 0: // IDLE / BOOTUP
-                currentUpDown = downUpDown; currentInOut = downInOut; currentRot = rotCenter; break;
-            case 1: // LIFT
+        // 3. Execute the frame
+        switch (localStep) {
+            case 0: // LIFT (In the air, pointing back)
                 currentUpDown = upUpDown; currentInOut = upInOut; currentRot = rotBackward; break;
-            case 2: // SWING FORWARD (In the air)
+            case 1: // SWING (In the air, pointing forward)
                 currentUpDown = upUpDown; currentInOut = upInOut; currentRot = rotForward; break;
-            case 3: // PLANT DOWN 
+            case 2: // PLANT (Hit the ground, pointing forward)
                 currentUpDown = downUpDown; currentInOut = downInOut; currentRot = rotForward; break;
-            case 4: // REST
-                currentUpDown = downUpDown; currentInOut = downInOut; currentRot = rotForward; break;
-            case 5: // SUPPORT BODY (Odds are lifting)
-                currentUpDown = downUpDown; currentInOut = downInOut; currentRot = rotForward; break;
-            case 6: // PUSH BACKWARD (Propels robot forward!)
-                currentUpDown = downUpDown; currentInOut = downInOut; currentRot = rotBackward; break;
-            case 7: // SUPPORT BODY (Odds are planting)
-                currentUpDown = downUpDown; currentInOut = downInOut; currentRot = rotBackward; break;
-            case 8: // REST
-                currentUpDown = downUpDown; currentInOut = downInOut; currentRot = rotBackward; break;
-        }
-    } else { 
-        // ==========================================
-        // GROUP B: ODD LEGS (1, 3, 5, 7)
-        // ==========================================
-        switch (st) {
-            case 0: // IDLE / BOOTUP
-                currentUpDown = downUpDown; currentInOut = downInOut; currentRot = rotCenter; break;
-            case 1: // SUPPORT BODY (Evens are lifting)
-                currentUpDown = downUpDown; currentInOut = downInOut; currentRot = rotForward; break;
-            case 2: // PUSH BACKWARD (Propels robot forward!)
-                currentUpDown = downUpDown; currentInOut = downInOut; currentRot = rotBackward; break;
-            case 3: // SUPPORT BODY (Evens are planting)
-                currentUpDown = downUpDown; currentInOut = downInOut; currentRot = rotBackward; break;
-            case 4: // REST
-                currentUpDown = downUpDown; currentInOut = downInOut; currentRot = rotBackward; break;
-            case 5: // LIFT
-                currentUpDown = upUpDown; currentInOut = upInOut; currentRot = rotBackward; break;
-            case 6: // SWING FORWARD (In the air)
-                currentUpDown = upUpDown; currentInOut = upInOut; currentRot = rotForward; break;
-            case 7: // PLANT DOWN
-                currentUpDown = downUpDown; currentInOut = downInOut; currentRot = rotForward; break;
-            case 8: // REST
-                currentUpDown = downUpDown; currentInOut = downInOut; currentRot = rotForward; break;
+            
+            // Because 6 legs are on the ground at once, we smoothly divide the backward push 
+            // across the remaining 5 steps so the robot smoothly glides forward!
+            case 3: // PUSH 1
+                currentUpDown = downUpDown; currentInOut = downInOut;
+                currentRot = rotForward + ((rotBackward - rotForward) * 1 / 5); break;
+            case 4: // PUSH 2
+                currentUpDown = downUpDown; currentInOut = downInOut;
+                currentRot = rotForward + ((rotBackward - rotForward) * 2 / 5); break;
+            case 5: // PUSH 3
+                currentUpDown = downUpDown; currentInOut = downInOut;
+                currentRot = rotForward + ((rotBackward - rotForward) * 3 / 5); break;
+            case 6: // PUSH 4
+                currentUpDown = downUpDown; currentInOut = downInOut;
+                currentRot = rotForward + ((rotBackward - rotForward) * 4 / 5); break;
+            case 7: // PUSH 5 (Fully back, ready to lift on next step)
+                currentUpDown = downUpDown; currentInOut = downInOut;
+                currentRot = rotBackward; break;
         }
     }
-
-// --- 3. Apply Custom Hardware Offsets ---
-    
-    // Offset Leg 4 (Index 4) down by 2 degrees
-    if (legIndex == 4) {
-        // Because Leg 4 is on the Starboard side, its "down" position is 45 
-        // and its "up" position is 20. To push it further down toward the floor, 
-        // we add to the angle. (If it moves the wrong way, just change this to -2).
-        currentUpDown -= 2; 
+// Offset the hind legs (Indices 6 and 7) physically forward by 15 degrees
+    if (legIndex == 7 || legIndex == 0) {
+        // Since our forward math uses subtraction (90 - 45 * portStarbound),
+        // subtracting 15 * portStarbound shifts the entire sweep 15 degrees forward.
+        // If they accidentally move backward, just change the "-=" to a "+="!
+        currentRot -= (25 * leg.portStarbound); 
     }
-
-    // --- 4. Command the Servos ---
+    // --- Command the Servos ---
     setServoAngle(leg.rotationPin, currentRot);
     setServoAngle(leg.upDownPin, currentUpDown);
     setServoAngle(leg.inOutPin, currentInOut);

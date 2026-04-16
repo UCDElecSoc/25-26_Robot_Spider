@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
+#include <Bluepad32.h>
 
 // --- Defines ---
 #define CAMERA_MODEL_ESP32S3_EYE
@@ -54,5 +55,8 @@ void setupCamera(void);
 void Ready(void);
 void setState(int legIndex, int st, int command);
 void walk(int direction);
+void onConnectedController(ControllerPtr ctl);
+void onDisconnectedController(ControllerPtr ctl);
+void processGamepad(ControllerPtr ctl);
 
 #endif // ROBOT_CONFIG_H
