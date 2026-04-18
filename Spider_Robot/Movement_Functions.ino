@@ -20,6 +20,101 @@ void walk(int command) {
     }
 }
 
+void waveLeg(int legTarget) {
+    // 1. Stand in the idle position first so the robot is balanced
+    Ready();
+    delay(200); 
+
+    // 2. Grab the specific leg's hardware config so we know its pins
+    LegConfig leg = legs[legTarget];
+
+    // 3. Calculate the lifted and sweep positions using your portStarbound math
+    int liftUpDown = 90 + (80 * leg.portStarbound);  // Matches your 'upUpDown' variable
+    int liftInOut  = 90 + (45 * leg.portStarbound);  // Matches your 'upInOut' variable
+    int waveForward = 90 - (40 * leg.portStarbound); // Sweep forward limit
+    int waveBack    = 90 + (40 * leg.portStarbound); // Sweep backward limit
+
+    // 4. Lift the leg into the air directly using setServoAngle
+    setServoAngle(leg.upDownPin, liftUpDown);
+    setServoAngle(leg.inOutPin, liftInOut);
+    delay(200); // Give the servos time to physically lift
+
+    // 5. Wave it back and forth 3 times
+    for (int i = 0; i < 3; i++) {
+        setServoAngle(leg.rotationPin, waveForward);
+        delay(150);
+        
+        setServoAngle(leg.rotationPin, waveBack);
+        delay(150);
+    }
+
+    // 6. Put the leg back down and return to the normal stance
+    Ready();
+}
+
+void rippleWave() {
+    // 1. Plant all feet firmly on the ground first
+    Ready();
+    delay(200); 
+
+    // 2. Loop through all 8 legs (Indices 0 through 7)
+    for (int i = 0; i < 8; i++) {
+        LegConfig leg = legs[i];
+
+        // --- Calculate Up and Down limits using your math ---
+        int liftUpDown = 90 + (80 * leg.portStarbound); 
+        int liftInOut  = 90 - (45 * leg.portStarbound); 
+        
+        int downUpDown = 90 + (45 * leg.portStarbound);
+        int downInOut  = 90 - (30 * leg.portStarbound);
+
+        // --- Lift the Leg ---
+        setServoAngle(leg.upDownPin, liftUpDown);
+        setServoAngle(leg.inOutPin, liftInOut);
+        
+        delay(200); // 200ms delay while it is in the air
+
+        // --- Put the Leg Down ---
+        setServoAngle(leg.upDownPin, downUpDown);
+        setServoAngle(leg.inOutPin, downInOut);
+        
+        // (Optional) Add a tiny delay here like delay(50); if you want 
+        // a slight pause before the next leg instantly shoots up!
+    }
+
+    // 3. Ensure everything is perfectly aligned at the end
+    Ready();
+}
+
+void kickLeg(int legTarget) {
+    // 1. Brace for the kick
+    Ready();
+    delay(100); 
+
+    LegConfig leg = legs[legTarget];
+
+    // 2. Calculate the forward rotation
+    int kickRot = 90 - (45 * leg.portStarbound); 
+
+    // 3. Determine the Outward Kick Angle based on which leg is kicking
+    int kickInOut;
+    if (legTarget == 3) {
+        kickInOut = 135; // Left side needs 135 to kick outward
+    } else {
+        kickInOut = 45;  // Right side is mirrored, so it needs 45 to kick outward
+    }
+
+    // 4. STRIKE!
+    setServoAngle(leg.rotationPin, kickRot);
+    setServoAngle(leg.inOutPin, kickInOut); 
+    
+    // Hold the kick out for 300 milliseconds
+    delay(300); 
+
+    // 5. Snap back to the ready stance
+    Ready();
+}
+
 void setState(int legIndex, int st, int command) {
     LegConfig leg = legs[legIndex]; 
 
@@ -93,7 +188,13 @@ void setState(int legIndex, int st, int command) {
         // Since our forward math uses subtraction (90 - 45 * portStarbound),
         // subtracting 15 * portStarbound shifts the entire sweep 15 degrees forward.
         // If they accidentally move backward, just change the "-=" to a "+="!
-        currentRot -= (25 * leg.portStarbound); 
+        currentRot += (25 * leg.portStarbound); 
+    }    
+    if (legIndex == 6 || legIndex == 1) {
+        // Since our forward math uses subtraction (90 - 45 * portStarbound),
+        // subtracting 15 * portStarbound shifts the entire sweep 15 degrees forward.
+        // If they accidentally move backward, just change the "-=" to a "+="!
+        currentRot += (15 * leg.portStarbound); 
     }
     // --- Command the Servos ---
     setServoAngle(leg.rotationPin, currentRot);

@@ -32,34 +32,50 @@ void onDisconnectedController(ControllerPtr ctl) {
 
 // --- Map Controller Inputs to Your Robot ---
 void processGamepad(ControllerPtr ctl) {
-    // Check D-Pad inputs
     uint8_t dpad = ctl->dpad();
-    
-    // We add a short delay after each step so the servos have time to physically move 
-    // to their targets before the next frame of animation is called.
-    int stepDelay = 80; // Adjust this! Smaller = faster walking, Larger = slower/smoother
+    int stepDelay = 80; 
 
+    // --- DPAD WALKING CONTROLS ---
     if (dpad == 0x01) {         // D-PAD UP
-        walk(1);                // Walk Forward
+        walk(1);                
         delay(stepDelay);
     } 
     else if (dpad == 0x02) {    // D-PAD DOWN
-        walk(-1);               // Walk Backward
+        walk(-1);               
         delay(stepDelay);
     } 
     else if (dpad == 0x04) {    // D-PAD RIGHT
-        walk(2);                // Turn Right
+        walk(2);                
         delay(stepDelay);
     } 
     else if (dpad == 0x08) {    // D-PAD LEFT
-        walk(-2);               // Turn Left
+        walk(-2);               
         delay(stepDelay);
     } 
+    
+    // --- FACE BUTTON WAVE CONTROLS ---
+    else if (ctl->a()) {        // 'A' Button Pressed (Cross on PS)
+        waveLeg(4);             // Wave Leg 4
+        // The wave function has its own delays, so we don't need one here
+    }
+    else if (ctl->b()) {        // 'B' Button Pressed (Circle on PS)
+        waveLeg(3);             // Wave Leg 5
+    }
+    else if (ctl->x()) {        // 'X' Button Pressed (Square on PS)
+        rippleWave();           // Do the stadium wave!
+    }
+
+    // --- TRIGGER KICK CONTROLS ---
+    else if (ctl->l2()) {  // Left Trigger (L2) pressed past threshold
+        kickLeg(3);             // Left Trigger kicks Leg 3
+    }
+    else if (ctl->r2()) {  // Right Trigger (R2) pressed past threshold
+        kickLeg(4);             // Right Trigger kicks Leg 4
+    }
+    
+    // --- IDLE STATE ---
     else {
-        // No D-Pad buttons are being pressed. 
-        // Reset to the idle stance.
         Ready();
         delay(stepDelay); 
     }
 }
-
