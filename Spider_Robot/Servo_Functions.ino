@@ -1,5 +1,3 @@
-
-
 void setupServos(){
   Serial.println("Initializing PCA9685 boards on ESP32-S3...");
   Wire.begin(I2C_SDA, I2C_SCL);
@@ -12,38 +10,29 @@ void setupServos(){
   // Initialize both PCA9685 boards
   pca1.begin();
   pca1.setPWMFreq(SERVO_FREQ);
-  
   pca2.begin();
   pca2.setPWMFreq(SERVO_FREQ);
   
   Serial.println("PCA9685 boards initialized!");
 
-  // Quick I2C scanner to verify connections
   scanI2C();
-  
-  // Set all servos to 90-degree (middle) positions
-
   Serial.setDebugOutput(true);
-//      calibrate();
+//calibrate(); // Calibartaion (Sets all legs at 90 degrees)
   Ready();
 }
 
 
-// Function to set all servos on both boards to middle position (90 degrees) //
+// Function to set all servos on both boards to middle position (90 degrees)
 void calibrate() {
-  // Calculate middle pulse once
   uint16_t middlePulse = SERVOMID;  // Approximately 300 for 90 degrees
   
-  // Set all servos on first board
   for (int servoNum = 0; servoNum < SERVOS_PER_BOARD; servoNum++) {
     pca1.setPWM(servoNum, 0, middlePulse);
-    delay(10); // Small delay to avoid overwhelming the I2C bus
+    delay(10);
   }
-  
-  // Set all servos on second board
   for (int servoNum = 0; servoNum < SERVOS_PER_BOARD; servoNum++) {
     pca2.setPWM(servoNum, 0, middlePulse);
-    delay(10); // Small delay to avoid overwhelming the I2C bus
+    delay(10);
   }
 }
 
@@ -61,12 +50,12 @@ void setServoAngle(int servoNum, int angle) {
   // Determine which board and which channel
   if (servoNum <= 16) {
     // First board (PCA9685 #1) - servos 1-16
-    int channel = servoNum - 1;  // Convert 1-16 to 0-15
+    int channel = servoNum - 1;
     pca1.setPWM(channel, 0, pulse);
     
   } else {
     // Second board (PCA9685 #2) - servos 17-32
-    int channel = servoNum - 17;  // Convert 17-32 to 0-15
+    int channel = servoNum - 17;
     pca2.setPWM(channel, 0, pulse);
 
   }

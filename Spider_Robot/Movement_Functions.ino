@@ -1,12 +1,14 @@
 void Ready() {
-  state = 0; // Force state to 0
+  state = 0; 
     for (int i = 0; i < 8; i++) {
         setState(i, state, 1);
     }
 }
 
+/***********************************************/
+/* Walk cycle code                             */
+/***********************************************/
 void walk(int command) {
-    // The animation timeline ALWAYS moves forward to keep the legs in sync
     state += 1; 
     
     // Wrap around for the 8-step cycle
@@ -29,15 +31,15 @@ void waveLeg(int legTarget) {
     LegConfig leg = legs[legTarget];
 
     // 3. Calculate the lifted and sweep positions using your portStarbound math
-    int liftUpDown = 90 + (80 * leg.portStarbound);  // Matches your 'upUpDown' variable
-    int liftInOut  = 90 + (45 * leg.portStarbound);  // Matches your 'upInOut' variable
-    int waveForward = 90 - (40 * leg.portStarbound); // Sweep forward limit
-    int waveBack    = 90 + (40 * leg.portStarbound); // Sweep backward limit
+    int liftUpDown = 90 + (80 * leg.portStarbound);
+    int liftInOut  = 90 + (45 * leg.portStarbound);
+    int waveForward = 90 - (40 * leg.portStarbound);
+    int waveBack    = 90 + (40 * leg.portStarbound);
 
     // 4. Lift the leg into the air directly using setServoAngle
     setServoAngle(leg.upDownPin, liftUpDown);
     setServoAngle(leg.inOutPin, liftInOut);
-    delay(200); // Give the servos time to physically lift
+    delay(200);
 
     // 5. Wave it back and forth 3 times
     for (int i = 0; i < 3; i++) {
@@ -47,7 +49,6 @@ void waveLeg(int legTarget) {
         setServoAngle(leg.rotationPin, waveBack);
         delay(150);
     }
-
     // 6. Put the leg back down and return to the normal stance
     Ready();
 }
@@ -61,25 +62,19 @@ void rippleWave() {
     for (int i = 0; i < 8; i++) {
         LegConfig leg = legs[i];
 
-        // --- Calculate Up and Down limits using your math ---
         int liftUpDown = 90 + (80 * leg.portStarbound); 
         int liftInOut  = 90 - (45 * leg.portStarbound); 
         
         int downUpDown = 90 + (45 * leg.portStarbound);
         int downInOut  = 90 - (30 * leg.portStarbound);
 
-        // --- Lift the Leg ---
         setServoAngle(leg.upDownPin, liftUpDown);
         setServoAngle(leg.inOutPin, liftInOut);
         
-        delay(200); // 200ms delay while it is in the air
+        delay(200);
 
-        // --- Put the Leg Down ---
         setServoAngle(leg.upDownPin, downUpDown);
         setServoAngle(leg.inOutPin, downInOut);
-        
-        // (Optional) Add a tiny delay here like delay(50); if you want 
-        // a slight pause before the next leg instantly shoots up!
     }
 
     // 3. Ensure everything is perfectly aligned at the end
@@ -99,33 +94,30 @@ void kickLeg(int legTarget) {
     // 3. Determine the Outward Kick Angle based on which leg is kicking
     int kickInOut;
     if (legTarget == 3) {
-        kickInOut = 135; // Left side needs 135 to kick outward
+        kickInOut = 135;
     } else {
-        kickInOut = 45;  // Right side is mirrored, so it needs 45 to kick outward
+        kickInOut = 45;
     }
 
-    // 4. STRIKE!
+    // 4. kick
     setServoAngle(leg.rotationPin, kickRot);
     setServoAngle(leg.inOutPin, kickInOut); 
-    
-    // Hold the kick out for 300 milliseconds
     delay(300); 
-
-    // 5. Snap back to the ready stance
     Ready();
 }
+
 
 void setState(int legIndex, int st, int command) {
     LegConfig leg = legs[legIndex]; 
 
-    // --- Determine Thrust Direction ---
+    // Determine Thrust Direction
     int legDirection = 1; 
     if (command == 1) legDirection = 1;
     else if (command == -1) legDirection = -1;
     else if (command == 2) legDirection = leg.portStarbound;
     else if (command == -2) legDirection = -leg.portStarbound;
 
-    // --- Pre-calculate positions ---
+    // Pre-calculate positions
     int downUpDown = 90 + (45 * leg.portStarbound); 
     int downInOut  = 90 - (30 * leg.portStarbound); 
     int upUpDown   = 90 + (80 * leg.portStarbound); 
@@ -137,7 +129,7 @@ void setState(int legIndex, int st, int command) {
 
     int currentUpDown, currentInOut, currentRot;
 
-    // --- Apply the Wave Gait ---
+    // Apply the Wave Gait
     if (st == 0) {
         // IDLE / BOOTUP
         currentUpDown = downUpDown; 
@@ -145,7 +137,6 @@ void setState(int legIndex, int st, int command) {
         currentRot = rotCenter;
     } else {
         // 1. Assign each leg to one of 4 pairs. 
-        // We pair opposite sides/ends so the robot doesn't tip over when lifting!
         int groupOffset = 0;
         if (legIndex == 0 || legIndex == 5) groupOffset = 0;      // Pair 0 lifts on steps 1 & 2
         else if (legIndex == 2 || legIndex == 7) groupOffset = 2; // Pair 1 lifts on steps 3 & 4
@@ -163,9 +154,6 @@ void setState(int legIndex, int st, int command) {
                 currentUpDown = upUpDown; currentInOut = upInOut; currentRot = rotForward; break;
             case 2: // PLANT (Hit the ground, pointing forward)
                 currentUpDown = downUpDown; currentInOut = downInOut; currentRot = rotForward; break;
-            
-            // Because 6 legs are on the ground at once, we smoothly divide the backward push 
-            // across the remaining 5 steps so the robot smoothly glides forward!
             case 3: // PUSH 1
                 currentUpDown = downUpDown; currentInOut = downInOut;
                 currentRot = rotForward + ((rotBackward - rotForward) * 1 / 5); break;
@@ -183,20 +171,16 @@ void setState(int legIndex, int st, int command) {
                 currentRot = rotBackward; break;
         }
     }
-// Offset the hind legs (Indices 6 and 7) physically forward by 15 degrees
+
+    // OFFSETS
     if (legIndex == 7 || legIndex == 0) {
-        // Since our forward math uses subtraction (90 - 45 * portStarbound),
-        // subtracting 15 * portStarbound shifts the entire sweep 15 degrees forward.
-        // If they accidentally move backward, just change the "-=" to a "+="!
         currentRot += (25 * leg.portStarbound); 
     }    
     if (legIndex == 6 || legIndex == 1) {
-        // Since our forward math uses subtraction (90 - 45 * portStarbound),
-        // subtracting 15 * portStarbound shifts the entire sweep 15 degrees forward.
-        // If they accidentally move backward, just change the "-=" to a "+="!
         currentRot += (15 * leg.portStarbound); 
     }
-    // --- Command the Servos ---
+
+    // Send the Commands
     setServoAngle(leg.rotationPin, currentRot);
     setServoAngle(leg.upDownPin, currentUpDown);
     setServoAngle(leg.inOutPin, currentInOut);

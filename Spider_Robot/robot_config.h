@@ -35,7 +35,6 @@ struct LegConfig {
 };
 
 // --- Extern Variables ---
-// (This tells the compiler these variables exist in the main file)
 extern Angle angle;
 extern LegConfig legs[8];
 extern int state;
